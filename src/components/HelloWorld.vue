@@ -8,7 +8,7 @@
                 <img :src= item.url width="50%">
                 <div></div>
                 <h4>{{ item.nama }}</h4>
-                <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}</p>
+                <p>{{ item.berat }} Kg <br> Rp{{ item.harga }} <br> (density: {{item.density}})</p>
                 <p></p>
             </li>
         </ul>
@@ -79,7 +79,7 @@
       </v-tabs>
     </v-layout> -->
 
-    <v-layout row wrap>
+    <v-layout row wrap v-if="display">
       <v-flex>
         <v-layout>
           <h2>By Weight</h2>
@@ -90,7 +90,7 @@
                     <img :src= item.url width="50%">
                     <div></div>
                     <h4>{{ item.nama }}</h4>
-                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}</p>
+                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}<br> (density: {{item.density}})</p>
                     <p></p>
                 </li>
             </ul>
@@ -98,13 +98,14 @@
           <v-layout>
             <div>
               <span class="indigo--text lighten-1"><h3>Total Berat: {{totalBerat}} Kg</h3>
-              <h3>Total Profit: Rp{{totalProfitt}} </h3></span>
+              <h3>Total Profit: Rp{{totalProfitt}} </h3>
+              <h3>Total Densitas: {{total_densityWeight}}</h3></span>
             </div>
           </v-layout>
       </v-flex>
-
+      
       <!-- By Profit -->
-      <v-flex mt-4>
+        <v-flex mt-4>
           <v-layout>
             <h2>By Profit</h2>
           </v-layout>
@@ -114,7 +115,7 @@
                     <img :src= item.url width="50%">
                     <div></div>
                     <h4>{{ item.nama }}</h4>
-                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}</p>
+                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}<br> (density: {{item.density}})</p>
                     <p></p>
                 </li>
             </ul>
@@ -122,13 +123,15 @@
           <v-layout>
             <div>
               <span class="indigo--text lighten-1"><h3>Total Berat: {{totalBeratProfit}} Kg</h3>
-              <h3>Total Profit: Rp{{totalProfittProfit}} </h3></span>
+              <h3>Total Profit: Rp{{totalProfittProfit}} </h3>
+              <h3>Total Densitas: {{total_densityProfit}}</h3></span>
             </div>
           </v-layout>
-      </v-flex>
+        </v-flex>
+      
 
       <!-- By Density -->
-      <v-flex mt-4>
+        <v-flex mt-4>
           <v-layout>
             <h2>By Density</h2>
           </v-layout>
@@ -138,7 +141,7 @@
                     <img :src= item.url width="50%">
                     <div></div>
                     <h4>{{ item.nama }}</h4>
-                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}</p>
+                    <p>{{ item.berat }} Kg <br> Rp{{ item.harga }}<br> (density: {{item.density}})</p>
                     <p></p>
                 </li>
             </ul>
@@ -146,10 +149,12 @@
           <v-layout>
             <div>
               <span class="indigo--text lighten-1"><h3>Total Berat: {{totalBeratDensity}} Kg</h3>
-              <h3>Total Profit: Rp{{totalProfittDensity}} </h3></span>
+              <h3>Total Profit: Rp{{totalProfittDensity}} </h3>
+              <h3>Total Densitas: {{total_densityDensity}}</h3></span>
             </div>
           </v-layout>
-      </v-flex>
+        </v-flex>
+      
     </v-layout>
 
     <!-- <br><br>
@@ -234,18 +239,22 @@
         this.resultByWeight.forEach(entry=> {
           this.totalBerat += entry.berat
           this.totalProfitt += entry.harga
+          this.total_densityWeight += entry.density
+          
         })
       },
       totalDensity() {
         this.resultByDensity.forEach(entry=> {
           this.totalBeratDensity += entry.berat
           this.totalProfittDensity += entry.harga
+          this.total_densityDensity += entry.density
         })
       },
       totalProfit() {
         this.resultByProfit.forEach(entry=> {
           this.totalBeratProfit += entry.berat
           this.totalProfittProfit += entry.harga
+          this.total_densityProfit += entry.density
         })
       },
       sortAscendent () {
@@ -266,10 +275,10 @@
       },
       sortDescendent () {
         function compare (a, b) {
-              if (a.profit < b.profit) {
+              if (a.harga < b.harga) {
                   return 1
               }
-              if (a.profit > b.profit) {
+              if (a.harga > b.harga) {
                   return -1
               }
               return 0
@@ -338,7 +347,7 @@
         this.sortDescendent()
         var i = 0
         while(i < this.itemsProfit.length){
-            if(this.totalBobotProfit + this.tempItemsProfit[i].berat<= this.maxCapacity){
+            if(this.totalBobotProfit + this.tempItemsProfit[i].berat <= this.maxCapacity){
                 for(var a = 0; a < this.itemsProfit.length; a++){
                   if(JSON.stringify(this.tempItemsProfit[i]) === JSON.stringify(this.itemsProfit[a])){
                     this.itemsProfit[a].status = 1
@@ -352,22 +361,26 @@
           i++
         }
         this.resultByProfit = this.itemsProfit.filter(function(item){return item.status > 0})
-        // console.log(this.resultByWeight)
         this.totalProfit()
       },
       excute() {
         this.greedyByDesntiy()
         this.greedyByWeight()
         this.greedyByProfit()
+        this.display = true
       }
     },
 
 
   data() {
       return {
+        display: false,
+
+
         // byWeight
         totalBerat: 0,
         totalProfitt: 0,
+        total_densityWeight:0,
         densityWeight: null,
         totalBobotWeight: 0,
         totalProfitWeight: 0,
@@ -392,13 +405,11 @@
           {url: require('@/assets/minyak_nabati.jpg'), nama: 'Minyak Nabati', berat: 15, harga: 60000, density: 4000, status: 0},
         ],
 
-
-
-
         // by Profit
 
         totalBeratProfit: 0,
         totalProfittProfit: 0,
+        total_densityProfit:0,
         densityProfit: null,
         totalBobotProfit: 0,
         totalProfitProfit: 0,
@@ -436,6 +447,7 @@
         // by Density
         totalBeratDensity: 0,
         totalProfittDensity: 0,
+        total_densityDensity: 0,
         densityDensity: null,
         totalBobotDensity: 0,
         totalProfitDensity: 0,
